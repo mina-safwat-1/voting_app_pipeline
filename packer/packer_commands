@@ -1,0 +1,7 @@
+packer init ./packer
+packer fmt ./packer
+packer validate ./packer
+packer build ./packer || true
+
+
+packer build  -var base_ami_id=$(echo ./packer/base/base_ami_id.txt) -var ami_name=mina -var container_name=busybox -var container_image=busybox ./packer/amis
