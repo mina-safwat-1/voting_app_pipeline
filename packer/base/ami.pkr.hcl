@@ -9,6 +9,7 @@ packer {
   }
 }
 
+
 data "amazon-ami" "amazon_linux_2023" {
   filters = {
     virtualization-type = "hvm"
@@ -21,7 +22,7 @@ data "amazon-ami" "amazon_linux_2023" {
 
 source "amazon-ebs" "custom-ami" {
   region        = "us-east-1"
-  ami_name      = "docker-ami-docker-nodeExporter"
+  ami_name      = "base-ami-${timestamp()}"
   instance_type = "t2.micro"
   source_ami    = data.amazon-ami.amazon_linux_2023.id
   ssh_username  = "ec2-user"
@@ -100,6 +101,21 @@ build {
   provisioner "shell" {
     inline = [
       "sudo docker run --volume=/:/rootfs:ro --volume=/var/run:/var/run:ro --volume=/sys:/sys:ro --volume=/var/lib/docker/:/var/lib/docker:ro --volume=/dev/disk/:/dev/disk:ro --publish=8080:8080 --detach=true --name=cadvisor --privileged --device=/dev/kmsg --restart always gcr.io/cadvisor/cadvisor",
+    ]
+  }
+
+
+  # install nginx locally to handle requests of elastic load balancer
+  provisioner "shell" {
+    inline = [
+    "sudo yum install -y nginx",
+    ]
+  }
+
+  # install nginx to ami
+  provisioner "shell" {
+    inline = [
+      "sudo docker run -p 3000:80 -d --name=nginx  --restart always nginx",
     ]
   }
 

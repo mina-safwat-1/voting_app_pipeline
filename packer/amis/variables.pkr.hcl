@@ -3,7 +3,7 @@ variable base_ami_id {
 }
 
 
-variable ami_name {
+variable service_name {
   type    = string
 }
 

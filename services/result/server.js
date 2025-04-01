@@ -1,4 +1,5 @@
 var path = require('path');
+const { password } = require('pg/lib/defaults');
 
 var express = require('express'),
     async = require('async'),
@@ -10,7 +11,7 @@ var express = require('express'),
       path: 'result/socket.io'
     });;
 
-var port = process.env.PORT || 4000;
+var port = process.env.PORT || 8080;
 
 io.on('connection', function (socket) {
 
@@ -22,7 +23,7 @@ io.on('connection', function (socket) {
 });
 
 var pool = new Pool({
-  connectionString: 'postgres://postgres:postgres@db/postgres'
+  connectionString: 'postgres://postgres:postgres@database-1.ci98ky4msfdc.us-east-1.rds.amazonaws.com/postgres'
 });
 
 async.retry(

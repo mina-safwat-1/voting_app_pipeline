@@ -8,6 +8,7 @@ using Newtonsoft.Json;
 using Npgsql;
 using StackExchange.Redis;
 
+
 namespace Worker
 {
     public class Program
@@ -16,9 +17,22 @@ namespace Worker
         {
             try
             {
-                var pgsql = OpenDbConnection("Server=db;Username=postgres;Password=postgres;");
-                var redisConn = OpenRedisConnection("redis");
+                var pgsql = OpenDbConnection("Server=database-1.ci98ky4msfdc.us-east-1.rds.amazonaws.com;Username=postgres;Password=postgres;");
+
+                
+
+                // var redisConn = OpenRedisConnection("redis");
+                // var redis = redisConn.GetDatabase();
+
+                var options = new ConfigurationOptions
+                {
+                    EndPoints = { "clustercfg.redis.zuxuv6.use1.cache.amazonaws.com:6379" },
+                    Ssl = true
+                };
+
+                var redisConn = ConnectionMultiplexer.Connect(options);
                 var redis = redisConn.GetDatabase();
+
 
                 // Keep alive is not implemented in Npgsql yet. This workaround was recommended:
                 // https://github.com/npgsql/npgsql/issues/1214#issuecomment-235828359
