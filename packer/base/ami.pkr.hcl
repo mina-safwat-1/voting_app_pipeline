@@ -22,7 +22,7 @@ data "amazon-ami" "amazon_linux_2023" {
 
 source "amazon-ebs" "custom-ami" {
   region        = "us-east-1"
-  ami_name      = "base-ami-${timestamp()}"
+  ami_name      = "base-ami"
   instance_type = "t2.micro"
   source_ami    = data.amazon-ami.amazon_linux_2023.id
   ssh_username  = "ec2-user"
@@ -64,7 +64,7 @@ build {
 
   # copy node_exporter.service file to ami
   provisioner "file" {
-    source      = "./packer/node_exporter.service"
+    source      = "./packer/base/node_exporter.service"
     destination = "/tmp/node_exporter.service"
   }
 
@@ -113,15 +113,15 @@ build {
   }
 
   # install nginx to ami
-  provisioner "shell" {
-    inline = [
-      "sudo docker run -p 3000:80 -d --name=nginx  --restart always nginx",
-    ]
-  }
+  # provisioner "shell" {
+  #   inline = [
+  #     "sudo docker run -p 3000:80 -d --name=nginx  --restart always nginx",
+  #   ]
+  # }
 
   # check log
-  post-processor "shell-local" {
-    inline = ["jq -r '.builds[0].ami_id' manifest.json > packer/base/base_ami_id.txt"]
-  }
+  # post-processor "shell-local" {
+  #   inline = ["jq -r '.builds[0].ami_id' manifest.json > packer/base/base_ami_id.txt"]
+  # }
 
 }
