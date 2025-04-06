@@ -1,8 +1,8 @@
 # command for result service
-docker container run -p 80:80 -e DB_USER=user -e DB_PASSWORD=pass -e DB_HOST=host  -e DB_NAME=postgres  result
+docker container run -p 80:80 -e DB_USER=user -e DB_PASSWORD=pass -e DB_HOST=host  -e DB_NAME=postgres --restart always -d result
 
 # command for voting service
-docker container run -p 80:80 -e REDIS_HOST=host  vote
+docker container run -p 80:80 -e REDIS_HOST=host --restart always -d vote
 
 # command for worker service
-docker container run -p 80:80 -e DB_USER=user -e DB_PASSWORD=pass -e DB_HOST=host  -e REDIS_HOST=host  worker
+docker container run -p 80:80 -e DB_USER=user -e DB_PASSWORD=pass -e DB_HOST=host  -e REDIS_HOST=host  --restart always -d  worker

@@ -22,7 +22,7 @@ data "amazon-ami" "amazon_linux_2023" {
 
 source "amazon-ebs" "custom-ami" {
   region        = "us-east-1"
-  ami_name      = "base-ami"
+  ami_name      = "base-ami-${formatdate("YYYY-MM-DD-hh-mm-ss", timestamp())}"
   instance_type = "t2.micro"
   source_ami    = data.amazon-ami.amazon_linux_2023.id
   ssh_username  = "ec2-user"
@@ -108,16 +108,10 @@ build {
   # install nginx locally to handle requests of elastic load balancer
   provisioner "shell" {
     inline = [
-    "sudo yum install -y nginx",
+      "sudo yum install -y nginx",
     ]
   }
 
-  # install nginx to ami
-  # provisioner "shell" {
-  #   inline = [
-  #     "sudo docker run -p 3000:80 -d --name=nginx  --restart always nginx",
-  #   ]
-  # }
 
   # check log
   # post-processor "shell-local" {
