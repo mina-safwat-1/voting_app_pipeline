@@ -1,12 +1,12 @@
 resource "aws_lb_target_group" "worker" {
   name        = "worker-tg"
-  port        = 80  # Port your instances listen on (e.g., HTTP)
+  port        = 80 # Port your instances listen on (e.g., HTTP)
   protocol    = "HTTP"
-  vpc_id      = aws_vpc.main.id  # Replace with your VPC ID if needed
-  target_type = "instance"       # Direct traffic to EC2 instances
+  vpc_id      = aws_vpc.main.id # Replace with your VPC ID if needed
+  target_type = "instance"      # Direct traffic to EC2 instances
 
   health_check {
-    path                = "/worker"     # Health check endpoint
+    path                = "/worker" # Health check endpoint
     interval            = 30
     healthy_threshold   = 2
     unhealthy_threshold = 2
@@ -16,15 +16,15 @@ resource "aws_lb_target_group" "worker" {
 }
 
 
-resource "aws_lb_target_group" "voting" {
-  name        = "voting-tg"
-  port        = 80  # Port your instances listen on (e.g., HTTP)
+resource "aws_lb_target_group" "vote" {
+  name        = "vote-tg"
+  port        = 80 # Port your instances listen on (e.g., HTTP)
   protocol    = "HTTP"
-  vpc_id      = aws_vpc.main.id  # Replace with your VPC ID if needed
-  target_type = "instance"       # Direct traffic to EC2 instances
+  vpc_id      = aws_vpc.main.id # Replace with your VPC ID if needed
+  target_type = "instance"      # Direct traffic to EC2 instances
 
   health_check {
-    path                = "/voting"     # Health check endpoint
+    path                = "/vote" # Health check endpoint
     interval            = 30
     healthy_threshold   = 2
     unhealthy_threshold = 2
@@ -36,13 +36,13 @@ resource "aws_lb_target_group" "voting" {
 
 resource "aws_lb_target_group" "result" {
   name        = "result-tg"
-  port        = 80  # Port your instances listen on (e.g., HTTP)
+  port        = 80 # Port your instances listen on (e.g., HTTP)
   protocol    = "HTTP"
-  vpc_id      = aws_vpc.main.id  # Replace with your VPC ID if needed
-  target_type = "instance"       # Direct traffic to EC2 instances
+  vpc_id      = aws_vpc.main.id # Replace with your VPC ID if needed
+  target_type = "instance"      # Direct traffic to EC2 instances
 
   health_check {
-    path                = "/result"     # Health check endpoint
+    path                = "/result" # Health check endpoint
     interval            = 30
     healthy_threshold   = 2
     unhealthy_threshold = 2

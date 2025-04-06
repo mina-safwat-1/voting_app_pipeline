@@ -14,5 +14,21 @@ variable "region" {
 }
 
 variable "worker_ami" {
-    type    = string  
+  type = string
+}
+
+variable "result_ami" {
+  type = string
+}
+
+variable "vote_ami" {
+  type = string
+}
+
+
+# Variables
+variable "db_password" {
+  description = "PostgreSQL admin password"
+  type        = string
+  sensitive   = true
 }

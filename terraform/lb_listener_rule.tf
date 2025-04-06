@@ -1,6 +1,6 @@
 
 resource "aws_lb_listener" "http" {
-  load_balancer_arn = aws_lb.test.arn  # Reference your ALB
+  load_balancer_arn = aws_lb.test.arn # Reference your ALB
   port              = 80
   protocol          = "HTTP"
 
@@ -18,7 +18,7 @@ resource "aws_lb_listener" "http" {
 # Rule for /worker*
 resource "aws_lb_listener_rule" "worker" {
   listener_arn = aws_lb_listener.http.arn
-  priority     = 100  # Lower number = higher priority
+  priority     = 100 # Lower number = higher priority
 
   action {
     type             = "forward"
@@ -27,25 +27,25 @@ resource "aws_lb_listener_rule" "worker" {
 
   condition {
     path_pattern {
-      values = ["/worker*"]  # Matches /worker, /worker/, /worker/any-path
+      values = ["/worker*"] # Matches /worker, /worker/, /worker/any-path
     }
   }
 }
 
 
-# Rule for /voting*
-resource "aws_lb_listener_rule" "voting" {
+# Rule for /vote*
+resource "aws_lb_listener_rule" "vote" {
   listener_arn = aws_lb_listener.http.arn
   priority     = 200
 
   action {
     type             = "forward"
-    target_group_arn = aws_lb_target_group.voting.arn
+    target_group_arn = aws_lb_target_group.vote.arn
   }
 
   condition {
     path_pattern {
-      values = ["/voting*"]  # Matches /voting, /voting/, /voting/any-path
+      values = ["/vote*"] # Matches /vote, /vote/, /vote/any-path
     }
   }
 }
@@ -62,7 +62,7 @@ resource "aws_lb_listener_rule" "result" {
 
   condition {
     path_pattern {
-      values = ["/result*"]  # Matches /voting, /voting/, /voting/any-path
+      values = ["/result*"] # Matches /result, /result/, /result/any-path
     }
   }
 }

@@ -1,4 +1,4 @@
-region         = "us-east-1"
+region = "us-east-1"
 subnets = [
   {
     name       = "pub_subnet_1"
@@ -32,6 +32,6 @@ subnets = [
 
 worker_ami = "ami-0ebbb5163d7979adb"
 
-# worker_ami = "ami-071226ecf16aa7d96"
+vote_ami = "ami-071226ecf16aa7d96"
 
 # worker_ami = "ami-084568db4383264d4"
