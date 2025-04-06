@@ -108,7 +108,7 @@ namespace Worker
             var options = new ConfigurationOptions
             {
                 EndPoints = { $"{redisHost}:{redisPort}" },
-                Ssl = true,
+                // Ssl = true,
                 AbortOnConnectFail = false
             };
 

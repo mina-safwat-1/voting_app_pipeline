@@ -32,7 +32,7 @@ def get_redis():
             port=elasticache_port,
             db=0,
             socket_timeout=5,
-            ssl=True,  # Set to True if your ElastiCache cluster uses SSL
+            # ssl=True,  # Set to True if your ElastiCache cluster uses SSL
             decode_responses=False  # Keep as False for binary data
         )
     return g.redis

@@ -24,6 +24,9 @@ resource "aws_autoscaling_group" "worker" {
   # Attach the ASG to the target group
   target_group_arns = [aws_lb_target_group.worker.arn]
 
+
+  
+
 }
 resource "aws_autoscaling_group" "vote" {
   name             = "vote-asg"

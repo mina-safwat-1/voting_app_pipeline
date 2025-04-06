@@ -105,17 +105,21 @@ build {
   }
 
 
-  # install nginx locally to handle requests of elastic load balancer
-  provisioner "shell" {
+  # Add these post-processors at the end of your build block
+  post-processor "manifest" {
+    output     = "ami-manifest.json"
+    strip_path = true
+  }
+
+  post-processor "shell-local" {
     inline = [
-      "sudo yum install -y nginx",
+      "jq -r '.builds[].artifact_id' ami-manifest.json | cut -d':' -f2 > packer/amis/base.txt",
+      "echo 'AMI ID saved to ami-id.txt'",
+      "rm ami-manifest.json",
     ]
   }
 
 
-  # check log
-  # post-processor "shell-local" {
-  #   inline = ["jq -r '.builds[0].ami_id' manifest.json > packer/base/base_ami_id.txt"]
-  # }
+
 
 }

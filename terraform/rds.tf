@@ -42,11 +42,10 @@ resource "aws_security_group" "rds_sg" {
 resource "aws_db_instance" "postgres_rds" {
   identifier             = "free-tier-postgres"
   engine                 = "postgres"
-  engine_version         = "17.2.R2"     # Latest version supported in Free Tier
   instance_class         = "db.t3.micro" # Free Tier eligible
   allocated_storage      = 20            # Max for Free Tier
   storage_type           = "gp2"
-  db_name                = "postgresdb-1" # Default database name
+  db_name                = "postgres" # Default database name
   username               = "postgres"     # Default PostgreSQL admin username
   password               = var.db_password
   skip_final_snapshot    = true
@@ -58,6 +57,10 @@ resource "aws_db_instance" "postgres_rds" {
   backup_retention_period = 0 # Disable automatic backups to stay within Free Tier
   maintenance_window      = "Mon:00:00-Mon:03:00"
   deletion_protection     = false # Disable for easier cleanup (enable for production)
+
+
+  # ca_cert_identifier     = "rds-ca-rsa2048-g1"  # Default CA until 2061
+
 
   tags = {
     Environment = "dev"

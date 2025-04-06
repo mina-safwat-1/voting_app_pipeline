@@ -30,8 +30,10 @@ subnets = [
   }
 ]
 
-worker_ami = "ami-0ebbb5163d7979adb"
+worker_ami = "ami-05fb6c1dca9850ef1"
 
-vote_ami = "ami-071226ecf16aa7d96"
+vote_ami = "ami-033103c5dfebee449"
 
-# worker_ami = "ami-084568db4383264d4"
+result_ami = "ami-02085ff3416558435"
+
+db_password = "postgres"

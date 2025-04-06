@@ -11,7 +11,7 @@ resource "aws_lb_target_group" "worker" {
     healthy_threshold   = 2
     unhealthy_threshold = 2
     timeout             = 5
-    matcher             = "200-399"
+    matcher             = "200-499"
   }
 }
 

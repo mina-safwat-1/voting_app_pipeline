@@ -6,3 +6,14 @@ docker container run -p 80:80 -e REDIS_HOST=host --restart always -d vote
 
 # command for worker service
 docker container run -p 80:80 -e DB_USER=user -e DB_PASSWORD=pass -e DB_HOST=host  -e REDIS_HOST=host  --restart always -d  worker
+
+
+
+# command to get redis_endpoint
+terraform -chdir=terraform output redis_endpoint
+
+# command to get postgres_endpoint
+terraform -chdir=terraform output postgres_endpoint
+
+
+# command to run terraform
