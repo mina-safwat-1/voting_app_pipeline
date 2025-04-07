@@ -87,6 +87,7 @@ jobs:
 
       - name: build base image packer
         run: |
+            packer init packer/base
             packer validate packer/base
 
             packer build  \
@@ -109,6 +110,7 @@ jobs:
             REPOSITORY: result
             IMAGE: latest
         run: |
+            packer init packer/services_amis/result_ami
             packer validate packer/services_amis/result_ami
 
             packer build  \
@@ -129,6 +131,7 @@ jobs:
             REPOSITORY: worker
             IMAGE: latest
         run: |
+            packer init packer/services_amis/worker_ami
             packer validate packer/services_amis/worker_ami
 
             packer build  \
@@ -150,6 +153,7 @@ jobs:
             REPOSITORY: vote
             IMAGE: latest
         run: |
+            packer init packer/services_amis/vote_ami
             packer validate packer/services_amis/vote_ami
 
             packer build  \
