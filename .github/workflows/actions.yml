@@ -86,13 +86,13 @@ jobs:
         run: terraform -chdir=./terraform init -backend-config="bucket=${{env.TF_STATE_BUCKET_NAME}}" -backend-config="region=${{env.AWS_REGION}}"
 
 
-    #   - name: build base image packer
-    #     run: |
-    #         packer init packer/base
+      - name: build base image packer
+        run: |
+            packer init packer/base
 
-    #         packer build  \
-    #         -var aws_region=${{env.AWS_REGION}} \
-    #         packer/base
+            packer build  \
+            -var aws_region=${{env.AWS_REGION}} \
+            packer/base
       
       - name: Debug Terraform Output
         run: terraform output
