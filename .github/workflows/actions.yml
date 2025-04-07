@@ -99,10 +99,10 @@ jobs:
         id: terraform-outputs
         run: |
             # Extract outputs and set as environment variables in 3 lines
-            echo "ECR_PROFILE=$(terraform -chdir=./terraform output -raw ecr_profile | cut -d ':' -f 1)" >> $GITHUB_ENV
-            echo "POSTGRES_ENDPOINT=$(terraform -chdir=./terraform output -raw postgres_endpoint | cut -d ':' -f 1)" >> $GITHUB_ENV
-            echo "REDIS_ENDPOINT=$(terraform -chdir=./terraform output -raw redis_endpoint | cut -d ':' -f 1)" >> $GITHUB_ENV
-            echo "BASE_AMI_ID=$(cat ./packer/amis/base.txt | tr -d '[:space:]')" >> $GITHUB_ENV
+            echo "ECR_PROFILE=$(terraform -chdir=./terraform output -raw ecr_profile | cut -d ':' -f 1 | tr -d '\n' |  tr -d '\r')" >> $GITHUB_ENV
+            echo "POSTGRES_ENDPOINT=$(terraform -chdir=./terraform output -raw postgres_endpoint | cut -d ':' -f 1 | tr -d '\n' | tr -d '\r')" >> $GITHUB_ENV
+            echo "REDIS_ENDPOINT=$(terraform -chdir=./terraform output -raw redis_endpoint | cut -d ':' -f 1 | tr -d '\n' | tr -d '\r')" >> $GITHUB_ENV
+            echo "BASE_AMI_ID=$(tr -d '[:space:]' < ./packer/amis/base.txt)" >> $GITHUB_ENV
                 
       - name: validate and Build AMI with Packer result service
         env:
