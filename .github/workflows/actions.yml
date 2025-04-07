@@ -86,13 +86,13 @@ jobs:
         run: terraform -chdir=./terraform init -backend-config="bucket=${{env.TF_STATE_BUCKET_NAME}}" -backend-config="region=${{env.AWS_REGION}}"
 
 
-      - name: build base image packer
-        run: |
-            packer init packer/base
+    #   - name: build base image packer
+    #     run: |
+    #         packer init packer/base
 
-            packer build  \
-            -var aws_region=${{env.AWS_REGION}} \
-            packer/base
+    #         packer build  \
+    #         -var aws_region=${{env.AWS_REGION}} \
+    #         packer/base
       
       - name: Debug Terraform Output
         run: terraform output
@@ -121,70 +121,70 @@ jobs:
             echo "BASE_AMI_ID=${{ env.BASE_AMI_ID }}"
 
 
-      - name: Build AMI with Packer result service
-        env:
-            REGISTRY: ${{ steps.login-ecr.outputs.registry }}
-            REPOSITORY: result
-            IMAGE: latest
-        run: |
-            packer init packer/services_amis/result_ami
+    #   - name: Build AMI with Packer result service
+    #     env:
+    #         REGISTRY: ${{ steps.login-ecr.outputs.registry }}
+    #         REPOSITORY: result
+    #         IMAGE: latest
+    #     run: |
+    #         packer init packer/services_amis/result_ami
 
-            packer build  \
-            -var base_ami_id=${{ env.BASE_AMI_ID }} \
-            -var container_image=$REGISTRY/$REPOSITORY:$IMAGE \
-            -var DB_USER=${{env.DB_USER}} \
-            -var DB_PASSWORD=${{env.DB_PASSWORD}} \
-            -var DB_HOST=${{ env.POSTGRES_ENDPOINT }} \
-            -var DB_NAME=postgres \
-            -var aws_region=${{env.AWS_REGION}} \
-            -var ecr_repository_url=$REGISTRY \
-            -var ec2_profile=${{ env.ECR_PROFILE }} \
-            packer/services_amis/result_ami
+    #         packer build  \
+    #         -var base_ami_id=${{ env.BASE_AMI_ID }} \
+    #         -var container_image=$REGISTRY/$REPOSITORY:$IMAGE \
+    #         -var DB_USER=${{env.DB_USER}} \
+    #         -var DB_PASSWORD=${{env.DB_PASSWORD}} \
+    #         -var DB_HOST=${{ env.POSTGRES_ENDPOINT }} \
+    #         -var DB_NAME=postgres \
+    #         -var aws_region=${{env.AWS_REGION}} \
+    #         -var ecr_repository_url=$REGISTRY \
+    #         -var ec2_profile=${{ env.ECR_PROFILE }} \
+    #         packer/services_amis/result_ami
 
-      - name: Build AMI with Packer worker service
-        env:
-            REGISTRY: ${{ steps.login-ecr.outputs.registry }}
-            REPOSITORY: worker
-            IMAGE: latest
-        run: |
-            packer init packer/services_amis/worker_ami
+    #   - name: Build AMI with Packer worker service
+    #     env:
+    #         REGISTRY: ${{ steps.login-ecr.outputs.registry }}
+    #         REPOSITORY: worker
+    #         IMAGE: latest
+    #     run: |
+    #         packer init packer/services_amis/worker_ami
 
-            packer build  \
-            -var base_ami_id=${{ env.BASE_AMI_ID }} \
-            -var container_image=$REGISTRY/$REPOSITORY:$IMAGE \
-            -var DB_USER=${{env.DB_USER}} \
-            -var DB_PASSWORD=${{env.DB_PASSWORD}} \
-            -var DB_HOST=${{ env.POSTGRES_ENDPOINT }} \
-            -var aws_region=${{env.AWS_REGION}} \
-            -var ecr_repository_url=$REGISTRY \
-            -var ec2_profile=${{ env.ECR_PROFILE }} \
-            -var REDIS_HOST=${{ env.REDIS_ENDPOINT }} \
-            packer/services_amis/worker_ami
+    #         packer build  \
+    #         -var base_ami_id=${{ env.BASE_AMI_ID }} \
+    #         -var container_image=$REGISTRY/$REPOSITORY:$IMAGE \
+    #         -var DB_USER=${{env.DB_USER}} \
+    #         -var DB_PASSWORD=${{env.DB_PASSWORD}} \
+    #         -var DB_HOST=${{ env.POSTGRES_ENDPOINT }} \
+    #         -var aws_region=${{env.AWS_REGION}} \
+    #         -var ecr_repository_url=$REGISTRY \
+    #         -var ec2_profile=${{ env.ECR_PROFILE }} \
+    #         -var REDIS_HOST=${{ env.REDIS_ENDPOINT }} \
+    #         packer/services_amis/worker_ami
 
-      - name: Build AMI with Packer vote service
-        env:
-            REGISTRY: ${{ steps.login-ecr.outputs.registry }}
-            REPOSITORY: vote
-            IMAGE: latest
-        run: |
-            packer init packer/services_amis/vote_ami
+    #   - name: Build AMI with Packer vote service
+    #     env:
+    #         REGISTRY: ${{ steps.login-ecr.outputs.registry }}
+    #         REPOSITORY: vote
+    #         IMAGE: latest
+    #     run: |
+    #         packer init packer/services_amis/vote_ami
 
-            packer build  \
-            -var base_ami_id=${{ env.BASE_AMI_ID }} \
-            -var container_image=$REGISTRY/$REPOSITORY:$IMAGE \
-            -var aws_region=${{env.AWS_REGION}} \
-            -var ecr_repository_url=$REGISTRY \
-            -var ec2_profile=${{ env.ECR_PROFILE }} \
-            -var REDIS_HOST=${{ env.REDIS_ENDPOINT }} \
-            packer/services_amis/vote_ami
+    #         packer build  \
+    #         -var base_ami_id=${{ env.BASE_AMI_ID }} \
+    #         -var container_image=$REGISTRY/$REPOSITORY:$IMAGE \
+    #         -var aws_region=${{env.AWS_REGION}} \
+    #         -var ecr_repository_url=$REGISTRY \
+    #         -var ec2_profile=${{ env.ECR_PROFILE }} \
+    #         -var REDIS_HOST=${{ env.REDIS_ENDPOINT }} \
+    #         packer/services_amis/vote_ami
 
 
-      - name: Extract Terraform Outputs and base image
-        run: |
-            # Extract outputs and set as environment variables in 3 lines
-            echo "RESULT_AMI_ID=$(tr -d '[:space:]' < ./packer/amis/result.txt)" >> $GITHUB_ENV
-            echo "WORKER_AMI_ID=$(tr -d '[:space:]' < ./packer/amis/worker.txt)" >> $GITHUB_ENV
-            echo "VOTE_AMI_ID=$(tr -d '[:space:]' < ./packer/amis/vote.txt)" >> $GITHUB_ENV
+    #   - name: Extract Terraform Outputs and base image
+    #     run: |
+    #         # Extract outputs and set as environment variables in 3 lines
+    #         echo "RESULT_AMI_ID=$(tr -d '[:space:]' < ./packer/amis/result.txt)" >> $GITHUB_ENV
+    #         echo "WORKER_AMI_ID=$(tr -d '[:space:]' < ./packer/amis/worker.txt)" >> $GITHUB_ENV
+    #         echo "VOTE_AMI_ID=$(tr -d '[:space:]' < ./packer/amis/vote.txt)" >> $GITHUB_ENV
 
 
       
@@ -199,6 +199,7 @@ jobs:
             -var "result_ami=${{ env.RESULT_AMI_ID }}" \
             -var "db_password=${{ env.DB_PASSWORD }}" \
             -var "region=${{ env.AWS_REGION }}" \
+            -var-file =./terraform/terraform.tfvars \
             -out=tfplan
         
       - name: Terraform Apply
