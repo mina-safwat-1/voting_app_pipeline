@@ -99,9 +99,9 @@ jobs:
         id: terraform-outputs
         run: |
             # Extract outputs with error handling
-            ECR_PROFILE=$(terraform -chdir=./terraform output -raw ecr_profile)
-            POSTGRES_HOST=$(terraform -chdir=./terraform output -raw postgres_endpoint | cut -d ':' -f 1)
-            REDIS_ENDPOINT=$(terraform -chdir=./terraform output -raw redis_endpoint)
+            ECR_PROFILE=$(terraform -chdir=./terraform output ecr_profile)
+            POSTGRES_HOST=$(terraform -chdir=./terraform output postgres_endpoint | cut -d ':' -f 1)
+            REDIS_ENDPOINT=$(terraform -chdir=./terraform output redis_endpoint)
             BASE_AMI_ID=$(cat ./packer/amis/base.txt | tr -d '[:space:]')
             
             # Verify values before setting
@@ -115,7 +115,7 @@ jobs:
             echo "POSTGRES_ENDPOINT=${POSTGRES_HOST}" >> $GITHUB_ENV
             echo "REDIS_ENDPOINT=${REDIS_ENDPOINT}" >> $GITHUB_ENV
             echo "BASE_AMI_ID=${BASE_AMI_ID}" >> $GITHUB_ENV
-            
+
       - name: validate and Build AMI with Packer result service
         env:
             REGISTRY: ${{ steps.login-ecr.outputs.registry }}
