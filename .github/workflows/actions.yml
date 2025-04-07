@@ -93,24 +93,23 @@ jobs:
     #         -var aws_region=${{env.AWS_REGION}} \
     #         packer/base
       
+      - name: Debug Terraform Output
+        run: terraform output
+        working-directory: ./terraform
 
       - name: Extract Terraform Outputs and base image
         id: terraform-outputs
-        run: |
+        run: |-
             # Extract outputs and set as environment variables in 3 lines
-            ECR_PROFILE=$(terraform -chdir=./terraform output -raw ecr_profile)
-            POSTGRES_ENDPOINT=$(terraform -chdir=./terraform output -raw postgres_endpoint | cut -d ':' -f 1 | tr -d '\n' | tr -d '\r')
-            REDIS_ENDPOINT=$(terraform -chdir=./terraform output -raw redis_endpoint | cut -d ':' -f 1 | tr -d '\n' | tr -d '\r')
-            BASE_AMI_ID=$(tr -d '[:space:]' < ./packer/amis/base.txt)
 
-
-            echo "ECR_PROFILE=$ECR_PROFILE" >> $GITHUB_ENV
-            echo "POSTGRES_ENDPOINT=$POSTGRES_ENDPOINT" >> $GITHUB_ENV
-            echo "BASE_AMI_ID=$BASE_AMI_ID" >> $GITHUB_ENV
-            echo "REDIS_ENDPOINT=$REDIS_ENDPOINT" >> $GITHUB_ENV
-
+            echo "ECR_PROFILE=$(terraform  output -raw ecr_profile)" >> $GITHUB_ENV
+            echo "POSTGRES_ENDPOINT=$(terraform  output -raw postgres_endpoint | cut -d ':' -f 1 )" >> $GITHUB_ENV
+            echo "REDIS_ENDPOINT=$(terraform  output -raw redis_endpoint)" >> $GITHUB_ENV
             
-            cat $GITHUB_ENV
+        working-directory: ./terraform
+
+      - name: get base image id
+        run: echo "BASE_AMI_ID=$(tr -d '[:space:]' < ./packer/amis/base.txt)" >> $GITHUB_ENV
 
     # Debug in NEXT step (variables are now available)
       - name: Verify environment variables
