@@ -98,24 +98,12 @@ jobs:
       - name: Extract Terraform Outputs and base image
         id: terraform-outputs
         run: |
-            # Extract outputs with error handling
-            ECR_PROFILE=$(terraform -chdir=./terraform output ecr_profile)
-            POSTGRES_HOST=$(terraform -chdir=./terraform output postgres_endpoint | cut -d ':' -f 1)
-            REDIS_ENDPOINT=$(terraform -chdir=./terraform output redis_endpoint)
-            BASE_AMI_ID=$(cat ./packer/amis/base.txt | tr -d '[:space:]')
-            
-            # Verify values before setting
-            echo "ECR_PROFILE=${ECR_PROFILE}"
-            echo "POSTGRES_HOST=${POSTGRES_HOST}"
-            echo "REDIS_ENDPOINT=${REDIS_ENDPOINT}"
-            echo "BASE_AMI_ID=${BASE_AMI_ID}"
-            
-            # Set environment variables
-            echo "ECR_PROFILE=${ECR_PROFILE}" >> $GITHUB_ENV
-            echo "POSTGRES_ENDPOINT=${POSTGRES_HOST}" >> $GITHUB_ENV
-            echo "REDIS_ENDPOINT=${REDIS_ENDPOINT}" >> $GITHUB_ENV
-            echo "BASE_AMI_ID=${BASE_AMI_ID}" >> $GITHUB_ENV
-
+            # Extract outputs and set as environment variables in 3 lines
+            echo "ECR_PROFILE=$(terraform -chdir=./terraform output -raw ecr_profile | cut -d ':' -f 1)" >> $GITHUB_ENV
+            echo "POSTGRES_ENDPOINT=$(terraform -chdir=./terraform output -raw postgres_endpoint | cut -d ':' -f 1)" >> $GITHUB_ENV
+            echo "REDIS_ENDPOINT=$(terraform -chdir=./terraform output -raw redis_endpoint | cut -d ':' -f 1)" >> $GITHUB_ENV
+            echo "BASE_AMI_ID=$(cat ./packer/amis/base.txt | tr -d '[:space:]')" >> $GITHUB_ENV
+                
       - name: validate and Build AMI with Packer result service
         env:
             REGISTRY: ${{ steps.login-ecr.outputs.registry }}
