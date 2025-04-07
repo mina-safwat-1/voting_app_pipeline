@@ -72,10 +72,11 @@ jobs:
         with:
           version: "1.8.5"
     
-      - name: Setup Terraform
-        uses: hashicorp/setup-terraform@v2
+      - name: setup Terraform
+        uses: hashicorp/setup-terraform@v1
         with:
-          terraform_version: "1.5.0"
+          terraform_version: "1.0.0"
+          terraform_wrapper: false
     
       - name: Login to ECR
         id: login-ecr
@@ -105,7 +106,7 @@ jobs:
             echo "ECR_PROFILE=$(terraform  output -raw ecr_profile)" >> $GITHUB_ENV
             echo "POSTGRES_ENDPOINT=$(terraform  output -raw postgres_endpoint | cut -d ':' -f 1 )" >> $GITHUB_ENV
             echo "REDIS_ENDPOINT=$(terraform  output -raw redis_endpoint)" >> $GITHUB_ENV
-            
+
         working-directory: ./terraform
 
       - name: get base image id
