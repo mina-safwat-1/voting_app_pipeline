@@ -103,11 +103,17 @@ jobs:
             echo "REDIS_ENDPOINT=$(terraform -chdir=./terraform output -raw redis_endpoint | cut -d ':' -f 1 | tr -d '\n' | tr -d '\r')" >> $GITHUB_ENV
             echo "BASE_AMI_ID=$(tr -d '[:space:]' < ./packer/amis/base.txt)" >> $GITHUB_ENV
             
-            echo ${{env.ECR_PROFILE}}
-            echo ${{env.POSTGRES_ENDPOINT}}
-            echo ${{env.REDIS_ENDPOINT}}
-            echo ${{env.BASE_AMI_ID}}
+            cat $GITHUB_ENV
 
+    # Debug in NEXT step (variables are now available)
+      - name: Verify environment variables
+        run: |
+            echo "ECR_PROFILE=${{ env.ECR_PROFILE }}"
+            echo "POSTGRES_ENDPOINT=${{ env.POSTGRES_ENDPOINT }}"
+            echo "REDIS_ENDPOINT=${{ env.REDIS_ENDPOINT }}"
+            echo "BASE_AMI_ID=${{ env.BASE_AMI_ID }}"
+
+            
       - name: Build AMI with Packer result service
         env:
             REGISTRY: ${{ steps.login-ecr.outputs.registry }}
