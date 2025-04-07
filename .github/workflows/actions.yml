@@ -92,7 +92,7 @@ jobs:
 
             packer build  \
             -var aws_region=${{env.AWS_REGION}} \
-            packer/services_amis/result_ami
+            packer/base
       
 
       - name: Extract Terraform Outputs and base image
