@@ -199,7 +199,7 @@ jobs:
             -var "result_ami=${{ env.RESULT_AMI_ID }}" \
             -var "db_password=${{ env.DB_PASSWORD }}" \
             -var "region=${{ env.AWS_REGION }}" \
-            -var-file=./terraform/vars.tfvars \
+            -var-file=vars.tfvars \
             -out=tfplan
         
       - name: Terraform Apply
