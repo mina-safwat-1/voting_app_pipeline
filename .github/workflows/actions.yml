@@ -13,7 +13,7 @@ env:
   AWS_REGION: ${{ secrets.AWS_REGION }}
   DB_USER: ${{ secrets.DB_USER }}
   DB_PASSWORD: ${{ secrets.DB_PASSWORD }}
-  TF_STATE_BUCKET_NAME: ${{ secrets.AWS_TF_STATE_BUCKET_NAME }}
+  TF_STATE_BUCKET_NAME: ${{ secrets.TF_STATE_BUCKET_NAME }}
 
 
 
