@@ -155,7 +155,6 @@ jobs:
             -var DB_USER=${{env.DB_USER}} \
             -var DB_PASSWORD=${{env.DB_PASSWORD}} \
             -var DB_HOST=${{ env.POSTGRES_ENDPOINT }} \
-            -var DB_NAME=postgres \
             -var aws_region=${{env.AWS_REGION}} \
             -var ecr_repository_url=$REGISTRY \
             -var ec2_profile=${{ env.ECR_PROFILE }} \
