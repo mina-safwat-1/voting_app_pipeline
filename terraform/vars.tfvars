@@ -29,7 +29,6 @@ subnets = [
 
   }
 ]
-
 worker_ami = "ami-05fb6c1dca9850ef1"
 
 vote_ami = "ami-033103c5dfebee449"

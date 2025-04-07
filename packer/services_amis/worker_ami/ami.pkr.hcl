@@ -10,7 +10,7 @@ packer {
 }
 
 source "amazon-ebs" "custom-ami" {
-  region        = "us-east-1"
+  region        = var.aws_region
   ami_name      = "worker-ami-${formatdate("YYYY-MM-DD-hh-mm-ss", timestamp())}"
   instance_type = "t2.micro"
   source_ami    = var.base_ami_id

@@ -21,7 +21,7 @@ data "amazon-ami" "amazon_linux_2023" {
 }
 
 source "amazon-ebs" "custom-ami" {
-  region        = "us-east-1"
+  region        = var.aws_region
   ami_name      = "base-ami-${formatdate("YYYY-MM-DD-hh-mm-ss", timestamp())}"
   instance_type = "t2.micro"
   source_ami    = data.amazon-ami.amazon_linux_2023.id

@@ -1,0 +1,187 @@
+name: CI/CD Pipeline
+
+on:
+  push:
+    branches: [ main ]
+  pull_request:
+    branches: [ main ]
+  workflow_dispatch:
+
+env:
+  AWS_ACCESS_KEY_ID: ${{ secrets.AWS_ACCESS_KEY_ID }}
+  AWS_SECRET_ACCESS_KEY: ${{ secrets.AWS_SECRET_ACCESS_KEY_ID}}
+  AWS_REGION: ${{ secrets.AWS_REGION }}
+  DB_USER: ${{ secrets.DB_USER }}
+  DB_PASSWORD: ${{ secrets.DB_PASSWORD }}
+  TF_STATE_BUCKET_NAME: ${{ secrets.AWS_TF_STATE_BUCKET_NAME }}
+
+
+
+jobs:
+  CI:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v3
+
+      - name: Login to ECR
+        id: login-ecr
+        uses: aws-actions/amazon-ecr-login@v1
+
+      - name: Build, push docker image result service
+        env:
+          REGISTRY: ${{ steps.login-ecr.outputs.registry }}
+          REPOSITORY: result
+          IMAGE: latest
+        run: |-
+          docker build -t $REGISTRY/$REPOSITORY:$IMAGE .
+          docker push $REGISTRY/$REPOSITORY:$IMAGE
+        working-directory: ./services/$REPOSITORY
+
+      - name: Build, push docker image vote service
+        env:
+          REGISTRY: ${{ steps.login-ecr.outputs.registry }}
+          REPOSITORY: vote
+          IMAGE: latest
+        run: |-
+          docker build -t $REGISTRY/$REPOSITORY:$IMAGE .
+          docker push $REGISTRY/$REPOSITORY:$IMAGE
+        working-directory: ./services/$REPOSITORY
+
+
+      - name: Build, push docker image worker service
+        env:
+          REGISTRY: ${{ steps.login-ecr.outputs.registry }}
+          REPOSITORY: worker
+          IMAGE: latest
+        run: |-
+          docker build -t $REGISTRY/$REPOSITORY:$IMAGE .
+          docker push $REGISTRY/$REPOSITORY:$IMAGE
+        working-directory: ./services/$REPOSITORY
+
+
+  CD:
+    needs: CI
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v3
+      
+      - name: Install Packer
+        uses: hashicorp/setup-packer@main
+        with:
+          version: "1.8.5"
+    
+      - name: Setup Terraform
+        uses: hashicorp/setup-terraform@v2
+        with:
+          terraform_version: "1.5.0"
+    
+      - name: Login to ECR
+        id: login-ecr
+        uses: aws-actions/amazon-ecr-login@v1
+
+      - name: Terraform Init
+        run: terraform -chdir=./terraform init -backend-config="bucket=${{env.TF_STATE_BUCKET_NAME}}" -backend-config="region=${{env.AWS_REGION}}"
+
+
+      - name: build base image packer
+        run: |
+            packer validate packer/base
+
+            packer build  \
+            -var aws_region=${{env.AWS_REGION}} \
+            packer/services_amis/result_ami
+      
+
+      - name: Extract Terraform Outputs and base image
+        id: terraform-outputs
+        run: |
+            # Extract outputs and set as environment variables in 3 lines
+            echo "ECR_PROFILE=$(terraform -chdir=./terraform output -raw ecr_profile)" >> $GITHUB_ENV
+            echo "POSTGRES_ENDPOINT=$(terraform -chdir=./terraform output -raw postgres_endpoint | cut -d ':' -f 1)" >> $GITHUB_ENV
+            echo "REDIS_ENDPOINT=$(terraform -chdir=./terraform output -raw redis_endpoint)" >> $GITHUB_ENV
+            echo "BASE_AMI_ID=$(cat ./packer/amis/base.txt | tr -d '[:space:]')" >> $GITHUB_ENV
+                
+      - name: validate and Build AMI with Packer result service
+        env:
+            REGISTRY: ${{ steps.login-ecr.outputs.registry }}
+            REPOSITORY: result
+            IMAGE: latest
+        run: |
+            packer validate packer/services_amis/result_ami
+
+            packer build  \
+            -var base_ami_id=${{ env.BASE_AMI_ID }} \
+            -var container_image=$REGISTRY/$REPOSITORY:$IMAGE \
+            -var DB_USER=${{env.DB_USER}} \
+            -var DB_PASSWORD=${{env.DB_PASSWORD}} \
+            -var DB_HOST=${{ env.POSTGRES_ENDPOINT }} \
+            -var DB_NAME=postgres \
+            -var aws_region=${{env.AWS_REGION}} \
+            -var ecr_repository_url=$REGISTRY \
+            -var ec2_profile=${{ env.ECR_PROFILE }} \
+            packer/services_amis/result_ami
+
+      - name: validate and Build AMI with Packer worker service
+        env:
+            REGISTRY: ${{ steps.login-ecr.outputs.registry }}
+            REPOSITORY: worker
+            IMAGE: latest
+        run: |
+            packer validate packer/services_amis/worker_ami
+
+            packer build  \
+            -var base_ami_id=${{ env.BASE_AMI_ID }} \
+            -var container_image=$REGISTRY/$REPOSITORY:$IMAGE \
+            -var DB_USER=${{env.DB_USER}} \
+            -var DB_PASSWORD=${{env.DB_PASSWORD}} \
+            -var DB_HOST=${{ env.POSTGRES_ENDPOINT }} \
+            -var DB_NAME=postgres \
+            -var aws_region=${{env.AWS_REGION}} \
+            -var ecr_repository_url=$REGISTRY \
+            -var ec2_profile=${{ env.ECR_PROFILE }} \
+            -var REDIS_HOST=${{ env.REDIS_ENDPOINT }} \
+            packer/services_amis/result_ami
+
+      - name: validate and Build AMI with Packer vote service
+        env:
+            REGISTRY: ${{ steps.login-ecr.outputs.registry }}
+            REPOSITORY: vote
+            IMAGE: latest
+        run: |
+            packer validate packer/services_amis/vote_ami
+
+            packer build  \
+            -var base_ami_id=${{ env.BASE_AMI_ID }} \
+            -var container_image=$REGISTRY/$REPOSITORY:$IMAGE \
+            -var aws_region=${{env.AWS_REGION}} \
+            -var ecr_repository_url=$REGISTRY \
+            -var ec2_profile=${{ env.ECR_PROFILE }} \
+            -var REDIS_HOST=${{ env.REDIS_ENDPOINT }} \
+            packer/services_amis/result_ami
+
+
+      - name: Extract Terraform Outputs and base image
+        run: |
+            # Extract outputs and set as environment variables in 3 lines
+            echo "RESULT_AMI_ID=$(cat ./packer/amis/result.txt | tr -d '[:space:]')" >> $GITHUB_ENV
+            echo "WORKER_AMI_ID=$(cat ./packer/amis/worker.txt | tr -d '[:space:]')" >> $GITHUB_ENV
+            echo "VOTE_AMI_ID=$(cat ./packer/amis/vote.txt | tr -d '[:space:]')" >> $GITHUB_ENV
+      
+      - name: Terraform Validate
+        run: terraform -chdir=./terraform validate
+      
+      - name: Terraform Plan
+        run: |
+          terraform -chdir=./terraform plan \
+            -var "worker_ami=${{ env.WORKER_AMI_ID }}" \
+            -var "vote_ami=${{ env.VOTE_AMI_ID }}" \
+            -var "result_ami=${{ env.RESULT_AMI_ID }}" \
+            -var "db_password=${{ env.DB_PASSWORD }}" \
+            -var "region=${{ env.AWS_REGION }}" \
+            -out=tfplan
+        
+      - name: Terraform Apply
+        run: terraform -chdir=./terraform apply -auto-approve tfplan
+
