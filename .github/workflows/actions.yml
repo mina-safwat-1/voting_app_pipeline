@@ -145,7 +145,7 @@ jobs:
             -var ecr_repository_url=$REGISTRY \
             -var ec2_profile=${{ env.ECR_PROFILE }} \
             -var REDIS_HOST=${{ env.REDIS_ENDPOINT }} \
-            packer/services_amis/result_ami
+            packer/services_amis/worker_ami
 
       - name: validate and Build AMI with Packer vote service
         env:
@@ -163,7 +163,7 @@ jobs:
             -var ecr_repository_url=$REGISTRY \
             -var ec2_profile=${{ env.ECR_PROFILE }} \
             -var REDIS_HOST=${{ env.REDIS_ENDPOINT }} \
-            packer/services_amis/result_ami
+            packer/services_amis/vote_ami
 
 
       - name: Extract Terraform Outputs and base image
