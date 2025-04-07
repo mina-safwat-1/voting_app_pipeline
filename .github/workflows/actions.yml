@@ -36,7 +36,7 @@ jobs:
         run: |-
           docker build -t $REGISTRY/$REPOSITORY:$IMAGE .
           docker push $REGISTRY/$REPOSITORY:$IMAGE
-        working-directory: services/$REPOSITORY
+        working-directory: services/result
 
       - name: Build, push docker image vote service
         env:
@@ -46,7 +46,7 @@ jobs:
         run: |-
           docker build -t $REGISTRY/$REPOSITORY:$IMAGE .
           docker push $REGISTRY/$REPOSITORY:$IMAGE
-        working-directory: services/$REPOSITORY
+        working-directory: services/vote
 
 
       - name: Build, push docker image worker service
@@ -57,7 +57,7 @@ jobs:
         run: |-
           docker build -t $REGISTRY/$REPOSITORY:$IMAGE .
           docker push $REGISTRY/$REPOSITORY:$IMAGE
-        working-directory: services/$REPOSITORY
+        working-directory: services/worker
 
 
   CD:
