@@ -98,10 +98,17 @@ jobs:
         id: terraform-outputs
         run: |
             # Extract outputs and set as environment variables in 3 lines
-            echo "ECR_PROFILE=$(terraform -chdir=./terraform output -raw ecr_profile | cut -d ':' -f 1 | tr -d '\n' |  tr -d '\r')" >> $GITHUB_ENV
-            echo "POSTGRES_ENDPOINT=$(terraform -chdir=./terraform output -raw postgres_endpoint | cut -d ':' -f 1 | tr -d '\n' | tr -d '\r')" >> $GITHUB_ENV
-            echo "REDIS_ENDPOINT=$(terraform -chdir=./terraform output -raw redis_endpoint | cut -d ':' -f 1 | tr -d '\n' | tr -d '\r')" >> $GITHUB_ENV
-            echo "BASE_AMI_ID=$(tr -d '[:space:]' < ./packer/amis/base.txt)" >> $GITHUB_ENV
+            ECR_PROFILE=$(terraform -chdir=./terraform output -raw ecr_profile | cut -d ':' -f 1 | tr -d '\n' |  tr -d '\r')
+            POSTGRES_ENDPOINT=$(terraform -chdir=./terraform output -raw postgres_endpoint | cut -d ':' -f 1 | tr -d '\n' | tr -d '\r')
+            REDIS_ENDPOINT=$(terraform -chdir=./terraform output -raw redis_endpoint | cut -d ':' -f 1 | tr -d '\n' | tr -d '\r')
+            BASE_AMI_ID=$(tr -d '[:space:]' < ./packer/amis/base.txt)
+
+
+            echo "ECR_PROFILE=$ECR_PROFILE" >> $GITHUB_ENV
+            echo "POSTGRES_ENDPOINT=$POSTGRES_ENDPOINT" >> $GITHUB_ENV
+            echo "BASE_AMI_ID=$BASE_AMI_ID" >> $GITHUB_ENV
+            echo "REDIS_ENDPOINT=$REDIS_ENDPOINT" >> $GITHUB_ENV
+            
             
             cat $GITHUB_ENV
 
@@ -113,7 +120,7 @@ jobs:
             echo "REDIS_ENDPOINT=${{ env.REDIS_ENDPOINT }}"
             echo "BASE_AMI_ID=${{ env.BASE_AMI_ID }}"
 
-            
+
       - name: Build AMI with Packer result service
         env:
             REGISTRY: ${{ steps.login-ecr.outputs.registry }}
