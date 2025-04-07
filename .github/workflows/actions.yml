@@ -88,7 +88,6 @@ jobs:
     #   - name: build base image packer
     #     run: |
     #         packer init packer/base
-    #         packer validate packer/base
 
     #         packer build  \
     #         -var aws_region=${{env.AWS_REGION}} \
@@ -104,14 +103,13 @@ jobs:
             echo "REDIS_ENDPOINT=$(terraform -chdir=./terraform output -raw redis_endpoint | cut -d ':' -f 1 | tr -d '\n' | tr -d '\r')" >> $GITHUB_ENV
             echo "BASE_AMI_ID=$(tr -d '[:space:]' < ./packer/amis/base.txt)" >> $GITHUB_ENV
                 
-      - name: validate and Build AMI with Packer result service
+      - name: Build AMI with Packer result service
         env:
             REGISTRY: ${{ steps.login-ecr.outputs.registry }}
             REPOSITORY: result
             IMAGE: latest
         run: |
             packer init packer/services_amis/result_ami
-            packer validate packer/services_amis/result_ami
 
             packer build  \
             -var base_ami_id=${{ env.BASE_AMI_ID }} \
@@ -125,14 +123,13 @@ jobs:
             -var ec2_profile=${{ env.ECR_PROFILE }} \
             packer/services_amis/result_ami
 
-      - name: validate and Build AMI with Packer worker service
+      - name: Build AMI with Packer worker service
         env:
             REGISTRY: ${{ steps.login-ecr.outputs.registry }}
             REPOSITORY: worker
             IMAGE: latest
         run: |
             packer init packer/services_amis/worker_ami
-            packer validate packer/services_amis/worker_ami
 
             packer build  \
             -var base_ami_id=${{ env.BASE_AMI_ID }} \
@@ -147,14 +144,13 @@ jobs:
             -var REDIS_HOST=${{ env.REDIS_ENDPOINT }} \
             packer/services_amis/worker_ami
 
-      - name: validate and Build AMI with Packer vote service
+      - name: Build AMI with Packer vote service
         env:
             REGISTRY: ${{ steps.login-ecr.outputs.registry }}
             REPOSITORY: vote
             IMAGE: latest
         run: |
             packer init packer/services_amis/vote_ami
-            packer validate packer/services_amis/vote_ami
 
             packer build  \
             -var base_ami_id=${{ env.BASE_AMI_ID }} \
@@ -169,9 +165,11 @@ jobs:
       - name: Extract Terraform Outputs and base image
         run: |
             # Extract outputs and set as environment variables in 3 lines
-            echo "RESULT_AMI_ID=$(cat ./packer/amis/result.txt | tr -d '[:space:]')" >> $GITHUB_ENV
-            echo "WORKER_AMI_ID=$(cat ./packer/amis/worker.txt | tr -d '[:space:]')" >> $GITHUB_ENV
-            echo "VOTE_AMI_ID=$(cat ./packer/amis/vote.txt | tr -d '[:space:]')" >> $GITHUB_ENV
+            echo "RESULT_AMI_ID=$(tr -d '[:space:]' < ./packer/amis/result.txt)" >> $GITHUB_ENV
+            echo "WORKER_AMI_ID=$(tr -d '[:space:]' < ./packer/amis/worker.txt)" >> $GITHUB_ENV
+            echo "VOTE_AMI_ID=$(tr -d '[:space:]' < ./packer/amis/vote.txt)" >> $GITHUB_ENV
+
+
       
       - name: Terraform Validate
         run: terraform -chdir=./terraform validate
